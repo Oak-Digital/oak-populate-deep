@@ -60,7 +60,7 @@ const getFullPopulateObject = (
             populate[key] = relationPopulate;
           }
         }
-      } else if (value.type === "media" && key !== "image") {
+      } else if (value.type === "media") {
         populate[key] = true;
       }
     }
