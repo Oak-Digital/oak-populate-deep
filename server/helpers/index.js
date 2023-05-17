@@ -9,8 +9,16 @@ const getModelPopulationAttributes = (model) => {
   return model.attributes;
 };
 
-const getFullPopulateObject = (modelUid, maxDepth = 20) => {
-  const skipCreatorFields = strapi.plugin('strapi-plugin-populate-deep')?.config('skipCreatorFields');
+const getFullPopulateObject = (
+  modelUid,
+  maxDepth = 20,
+  populateOptions = {}
+) => {
+  const { relations = true } = populateOptions;
+
+  const skipCreatorFields = strapi
+    .plugin("strapi-plugin-populate-deep")
+    ?.config("skipCreatorFields");
 
   if (maxDepth <= 1) {
     return true;
@@ -26,22 +34,33 @@ const getFullPopulateObject = (modelUid, maxDepth = 20) => {
   )) {
     if (value) {
       if (value.type === "component") {
-        populate[key] = getFullPopulateObject(value.component, maxDepth - 1);
+        populate[key] = getFullPopulateObject(
+          value.component,
+          maxDepth - 1,
+          populateOptions
+        );
       } else if (value.type === "dynamiczone") {
         const dynamicPopulate = value.components.reduce((prev, cur) => {
-          const curPopulate = getFullPopulateObject(cur, maxDepth - 1);
+          const curPopulate = getFullPopulateObject(
+            cur,
+            maxDepth - 1,
+            populateOptions
+          );
           return curPopulate === true ? prev : merge(prev, curPopulate);
         }, {});
         populate[key] = isEmpty(dynamicPopulate) ? true : dynamicPopulate;
       } else if (value.type === "relation") {
-        const relationPopulate = getFullPopulateObject(
-          value.target,
-          (key === 'localizations') && maxDepth > 2 ? 1 : maxDepth - 1
-        );
-        if (relationPopulate) {
-          populate[key] = relationPopulate;
+        if (relations) {
+          const relationPopulate = getFullPopulateObject(
+            value.target,
+            key === "localizations" && maxDepth > 2 ? 1 : maxDepth - 1,
+            populateOptions
+          );
+          if (relationPopulate) {
+            populate[key] = relationPopulate;
+          }
         }
-      } else if (value.type === "media") {
+      } else if (value.type === "media" && key !== "image") {
         populate[key] = true;
       }
     }
@@ -50,5 +69,5 @@ const getFullPopulateObject = (modelUid, maxDepth = 20) => {
 };
 
 module.exports = {
-  getFullPopulateObject
-}
+  getFullPopulateObject,
+};
