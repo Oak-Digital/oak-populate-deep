@@ -29,10 +29,11 @@ const getFullPopulateObject = (
 
   const populate = {};
   const model = strapi.getModel(modelUid);
+
   for (const [key, value] of Object.entries(
     getModelPopulationAttributes(model)
   )) {
-    if (value) {
+    if (value && value.target !== "api::page.page") {
       if (value.type === "component") {
         populate[key] = getFullPopulateObject(
           value.component,
