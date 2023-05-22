@@ -53,6 +53,7 @@ const getFullPopulateObject = (
         if (
           excludes.includes(key) ||
           value.target !== "api::page.page" ||
+          value.target !== "admin::user" ||
           relations
         ) {
           const relationPopulate = getFullPopulateObject(
