@@ -33,7 +33,7 @@ const getFullPopulateObject = (
   for (const [key, value] of Object.entries(
     getModelPopulationAttributes(model)
   )) {
-    if (value && value.target !== "api::page.page") {
+    if (value) {
       if (value.type === "component") {
         populate[key] = getFullPopulateObject(
           value.component,
@@ -51,12 +51,7 @@ const getFullPopulateObject = (
         }, {});
         populate[key] = isEmpty(dynamicPopulate) ? true : dynamicPopulate;
       } else if (value.type === "relation") {
-        if (
-          excludes.includes(key) ||
-          value.target !== "api::page.page" ||
-          value.target !== "admin::user" ||
-          relations
-        ) {
+        if (relations) {
           const relationPopulate = getFullPopulateObject(
             value.target,
             key === "localizations" && maxDepth > 2 ? 1 : maxDepth - 1,
