@@ -11,19 +11,21 @@ module.exports = ({ strapi }) => {
         strapi.plugin("strapi-plugin-populate-deep")?.config("defaultDepth") ||
         5;
       if (populate && populate[0] === "deep") {
-        const relations = populate && populate[2] === "true" ? true : false;
+        const relations =
+          populate &&
+          (populate[2] === "true"
+            ? true
+            : populate[2] === "false"
+            ? false
+            : true);
+
         const depth = populate[1] ?? defaultDepth;
 
-        let excludes = [];
-        if (populate[3]) {
-          for (let index = 3; index < populate.length; index++) {
-            excludes.push(populate[index]);
-          }
-        }
+        const removePages = populate[3] === "true" ? "api::page.page" : "";
 
         const modelObject = getFullPopulateObject(event.model.uid, depth, {
           relations: relations,
-          excludes: excludes,
+          removePages: removePages,
         });
         event.params.populate = modelObject.populate;
       }

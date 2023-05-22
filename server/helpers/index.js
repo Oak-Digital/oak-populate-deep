@@ -14,7 +14,7 @@ const getFullPopulateObject = (
   maxDepth = 20,
   populateOptions = {}
 ) => {
-  const { relations = true, excludes = [] } = populateOptions;
+  const { relations = true, removePages = "" } = populateOptions;
 
   const skipCreatorFields = strapi
     .plugin("strapi-plugin-populate-deep")
@@ -33,7 +33,7 @@ const getFullPopulateObject = (
   for (const [key, value] of Object.entries(
     getModelPopulationAttributes(model)
   )) {
-    if (value) {
+    if (value && value.target !== removePages) {
       if (value.type === "component") {
         populate[key] = getFullPopulateObject(
           value.component,
