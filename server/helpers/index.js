@@ -14,7 +14,7 @@ const getFullPopulateObject = (
   maxDepth = 20,
   populateOptions = {}
 ) => {
-  const { relations = true } = populateOptions;
+  const { relations = true, excludes = [] } = populateOptions;
 
   const skipCreatorFields = strapi
     .plugin("strapi-plugin-populate-deep")
@@ -50,7 +50,11 @@ const getFullPopulateObject = (
         }, {});
         populate[key] = isEmpty(dynamicPopulate) ? true : dynamicPopulate;
       } else if (value.type === "relation") {
-        if (relations) {
+        if (
+          excludes.includes(key) ||
+          value.target !== "api::page.page" ||
+          relations
+        ) {
           const relationPopulate = getFullPopulateObject(
             value.target,
             key === "localizations" && maxDepth > 2 ? 1 : maxDepth - 1,

@@ -13,8 +13,17 @@ module.exports = ({ strapi }) => {
       if (populate && populate[0] === "deep") {
         const relations = populate && populate[2] === "true" ? true : false;
         const depth = populate[1] ?? defaultDepth;
+
+        let excludes = [];
+        if (populate[3]) {
+          for (let index = 3; index < populate.length; index++) {
+            excludes.push(populate[index]);
+          }
+        }
+
         const modelObject = getFullPopulateObject(event.model.uid, depth, {
           relations: relations,
+          excludes: excludes,
         });
         event.params.populate = modelObject.populate;
       }
